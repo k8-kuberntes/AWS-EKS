@@ -1,5 +1,7 @@
 # AWS-EKS
 https://velotio.com/blog/2018/6/15/kubernetes-high-availability-kubeadm
+
+http://docs.heptio.com/content/aws.html  ---k8
 https://medium.com/@earielli/kubernetes-on-centos-7-with-ha-in-aws-or-onpremise-deploy-one-app-with-circle-ci-d7b990c1852d
 
 Create a kubeconfig file for manging the EKS Cluster.
