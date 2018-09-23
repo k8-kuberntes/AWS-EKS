@@ -1,5 +1,5 @@
 # AWS-EKS
-
+https://velotio.com/blog/2018/6/15/kubernetes-high-availability-kubeadm
 
 Create a kubeconfig file for manging the EKS Cluster.
 
