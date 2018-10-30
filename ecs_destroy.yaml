@@ -13,7 +13,6 @@
     ec2_asg:
       name: "{{ ec2_asg_name }}"
       state: "absent"
-      wait_for_instances: "{{ ec2_asg_wait }}"
   - name: "AWS | ASG | Decomission the EC2 Launch Configuration"
     ec2_lc:
       name:  "{{ ecs_cluster_name }}-lc"
