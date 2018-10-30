@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  connection: local
+  become: no
+  gather_facts: yes
+  vars:
+    ecs_cluster_name: sg_gearup_dev
+    ecs_alb_name: sg-dev-test
+    ecs_asg_name: "{{ ecs_cluster_name }}-asg"
+
+  tasks:
+  - name: "AWS | EC2 | Decomission the EC2 Auto Scaling Group"
+    ec2_asg:
+      name: "{{ ec2_asg_name }}"
+      state: "absent"
+      wait_for_instances: "{{ ec2_asg_wait }}"
+  - name: "AWS | ASG | Decomission the EC2 Launch Configuration"
+    ec2_lc:
+      name:  "{{ ecs_cluster_name }}-lc"
+      state: "absent"
+  - name: "AWS | ECS | Decommission the cluster"
+    ecs_cluster:
+      name: "{{ ecs_cluster_name }}"
+      state: "absent"  
