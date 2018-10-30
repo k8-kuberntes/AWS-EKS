@@ -4,7 +4,7 @@
   become: no
   gather_facts: yes
   vars:
-    ecs_vpc_subnets: ['subnet-0c75f422','subnet-51de941b']
+    ecs_vpc_subnets: ['subnet-040b79d5ac41f3f3c','subnet-0d90a4515c17859c9']
     cloudwatch_namespace: "/ecs/{{ ecs_cluster_name }}-{{ ecs_env }}"
     ecs_cluster_name: sg_gearup_dev
     ecs_cluster_create_delete: present
@@ -12,13 +12,13 @@
     ecs_ec2_region: us-east-1
     ecs_ssh_key_name:  "custom_ami_key"
     ecs_ami_id: "ami-03755a844de4046b6"
-    ecs_assign_public_ip: true
+    ecs_assign_public_ip: false
     ecs_asg_name: "{{ ecs_cluster_name }}-asg"
     ecs_asg_min_size: 2
     ecs_asg_max_size: 2
     ecs_asg_desired_capacity: 2
     ecs_asg_default_cooldown: 300
-    ecs_security_groups: ["sg-08427337db493a8d6"]
+    ecs_security_groups: ["sg-021d1765a664548ed"]
     ecs_ec2_tags:
       - Name: "ecs-cluster-host"
     ecs_asg_replace_all_instances: yes
@@ -26,6 +26,7 @@
     ecs_asg_health_type: EC2
     ecs_env: development
     ecs_alb_name: sg-dev-test
+    ecs_vpc_id: vpc-0ac3d92f2788bfee1
 
 
 
@@ -65,7 +66,7 @@
         health_check_port: 3000 #The port on which each target receives traffic from the load balancer. # not required. The port the load balancer uses when performing health checks on targets. Can be set to 'traffic-port' to match target port.
         successful_response_codes: "200"
         target_type: instance
-        vpc_id: vpc-79e13703
+        vpc_id: '{{ecs_vpc_id}}'
         stickiness_enabled: True
         wait_timeout: 200 # not required. The time to wait for the target group.
     register: elb_target_group
@@ -116,7 +117,7 @@
               - Type: forward
                 TargetGroupName: '{{ecs_alb_name}}-targetgroup'
 
-        state: present # not required. choices: present;absent. Create or destroy the load balancer.
+        state: '{{ecs_cluster_create_delete}}' # not required. choices: present;absent. Create or destroy the load balancer.
         http2: true # not required. Indicates whether to enable HTTP2 routing.
         scheme: internet-facing # not required. choices: internet-facing;internal. Internet-facing or internal load balancer. An ELB scheme can not be modified after creation.
         validate_certs: yes # not required. When set to "no", SSL certificates will not be validated for boto versions >= 2.6.0.
@@ -141,7 +142,7 @@
         echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config;
         sudo start ecs
 
-      state: present
+      state: '{{ecs_cluster_create_delete}}'
     register: ec2_new_lc
 
   - set_fact:
@@ -165,7 +166,7 @@
       wait_for_instances: true
       region: "{{ ecs_ec2_region }}"
       target_group_arns: '{{elb_target_group.target_group_arn}}'
-      state: present
+      state: '{{ecs_cluster_create_delete}}'
     register: ec2_asg
 
   - debug: var=ec2_asg verbosity=2
@@ -198,7 +199,7 @@
   - name: Create task definition
     ecs_taskdefinition:
       family: gearup-pipeline
-      state: present
+      state: '{{ecs_cluster_create_delete}}'
       containers:
       - name: gearup-services
         cpu: 1024
@@ -279,7 +280,7 @@
   - block:
     - name: creting or update services for the running cluster
       ecs_service:
-        state: present
+        state: '{{ecs_cluster_create_delete}}'
         name: gearup-deploy
         cluster: '{{ecs_cluster_name}}'
         task_definition: "{{  task_defination_output.taskdefinition[\"family\"]   }}:{{ task_defination_output.taskdefinition[\"revision\"] }}"
@@ -297,4 +298,3 @@
 
     - name: Debug message for Cluster  ARN(AWS resource name) value
       debug: var=Deployed_service_output.service.clusterArn
-
