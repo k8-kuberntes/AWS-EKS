@@ -22,3 +22,12 @@
     ecs_cluster:
       name: "{{ ecs_cluster_name }}"
       state: "absent"  
+# Delete a target group
+  - name: Delete ECS ELB Target Group
+    elb_target_group:
+      name:  '{{ecs_alb_name}}-targetgroup'
+      state: absent
+  - name: Delete APP- ELB
+    elb_application_lb:
+      state: absent
+      name: '{{ecs_alb_name}}-App'
