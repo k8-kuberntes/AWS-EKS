@@ -122,7 +122,7 @@
         scheme: internet-facing # not required. choices: internet-facing;internal. Internet-facing or internal load balancer. An ELB scheme can not be modified after creation.
         validate_certs: yes # not required. When set to "no", SSL certificates will not be validated for boto versions >= 2.6.0.
 
-  - name: "AWS | EC2 | Create a new EC2 Launch Configuration for ECS use (if non was found)"
+  - name: "AWS | Autoscalling | Create a new EC2 Launch Configuration for ECS use"
     ec2_lc:
       name: "{{ ecs_cluster_name }}-lc"
       image_id: "{{ ecs_ami_id }}"
@@ -149,8 +149,7 @@
       ec2_ecs_lc_name: "{{ ec2_new_lc.name }}"
 
   - debug: var=ec2_ecs_lc_name verbosity=1
-  - name: "AWS | EC2 | Define a EC2 Auto Scaling Group for ECS use"
-
+  - name: "AWS | ECS Autoscaling | Define a EC2 Auto Scaling Group for ECS use"
     ec2_asg:
       name: "{{ ecs_asg_name }}"
       health_check_period: "{{ ecs_asg_health_check_period }}"
@@ -266,14 +265,14 @@
 
     register: task_defination_output
 
-  - name: Print details name
+  - name: debug details name
     debug: var=task_defination_output.taskdefinition["family"]
 
 
-  - name: Print details Task revision
+  - name: debug Task revision
     debug: var=task_defination_output.taskdefinition["revision"]
 
-  - name: Print details Task name and revision
+  - name: debug details Task name and revision
     debug:
         msg: "{{  task_defination_output.taskdefinition[\"family\"]   }}:{{ task_defination_output.taskdefinition[\"revision\"] }}"
 
@@ -293,7 +292,7 @@
     - name: Debug message for Services  name
       debug: var=Deployed_service_output.service.serviceName
 
-    - name: Debug message for Services  ARN(AWS resource name) value
+    - name: Debug message for Services  ARN[AWS resource nam] value
       debug: var=Deployed_service_output.service.serviceArn
 
     - name: Debug message for Cluster  ARN(AWS resource name) value
